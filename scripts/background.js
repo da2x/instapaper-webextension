@@ -23,7 +23,7 @@ function clearAuthorization()
 function getAuthorization()
 {
   return new Promise(
-    function(resolve, reject)
+    (resolve, reject) =>
     {
       if (authorization !== null)
       {
@@ -32,7 +32,7 @@ function getAuthorization()
       }
       let authorize = browser.storage.local.get('authorization');
       authorize.then(
-        function(data)
+        data =>
         {
           if (data && data.authorization != null)
           {
@@ -42,10 +42,7 @@ function getAuthorization()
           }
           resolve({type: 'auth', state: 'unauthorized'});
         },
-        function()
-        {
-          resolve({type: 'auth', state: 'failed'});
-        }
+        () => resolve({type: 'auth', state: 'failed'})
       );
     }
   );
@@ -64,7 +61,7 @@ function setAuthorization(new_auth)
 function setIsAndroid()
 {
   browser.runtime.getPlatformInfo().then(
-    function(platformInfo)
+    platformInfo =>
     {
       if (platformInfo.os == 'android')
       {
@@ -80,7 +77,7 @@ function setIsAndroid()
 function validateAuth(candidateUserName, candidateUserPass)
 {
   return new Promise(
-    function(resolve, reject)
+    (resolve, reject) =>
     {
       if (!candidateUserName)
       {
@@ -94,21 +91,15 @@ function validateAuth(candidateUserName, candidateUserPass)
       var candidateAuthorization = 'Basic ' + btoa(candidateUserName + ':' + candidateUserPass);
 
       let client = new XMLHttpRequest();
-      client.onreadystatechange = function (ev)
+      client.onreadystatechange = (ev) =>
       {
         if (client.readyState == 4)
         {
           if (client.status == 200)
           {
             return setAuthorization(candidateAuthorization).then(
-              function()
-              {
-                resolve({type: 'auth', state: 'authorized'});
-              },
-              function()
-              {
-                resolve({type: 'auth', state: 'failed'});
-              }
+              () => resolve({type: 'auth', state: 'authorized'}),
+              () => resolve({type: 'auth', state: 'failed'})
             );
           }
           else if (client.status == 403)
@@ -125,9 +116,7 @@ function validateAuth(candidateUserName, candidateUserPass)
           resolve(respondError('api_server_status_' + client.status));
         }
       };
-      client.onerror = function() {
-        resolve(respondError('xhr_auth_failed'));
-      }
+      client.onerror = () => resolve(respondError('xhr_auth_failed'));
       client.open('POST', API_ENDPOINT + 'authenticate');
       client.setRequestHeader('User-Agent', USER_AGENT);
       client.setRequestHeader('Authorization', candidateAuthorization);
@@ -140,7 +129,7 @@ function validateAuth(candidateUserName, candidateUserPass)
 function saveLink(tab_url, document_extracts, options, active_tab_id)
 {
   return new Promise(
-    function(resolve, reject)
+    (resolve, reject) =>
     {
       var resolveFinalUrl = 1;
       var encodedUrl = encodeURIComponent(tab_url);
@@ -169,7 +158,8 @@ function saveLink(tab_url, document_extracts, options, active_tab_id)
       
 
       let client = new XMLHttpRequest();
-      client.onreadystatechange = function (ev, sendResponse) {
+      client.onreadystatechange = (ev, sendResponse) =>
+      {
         if (client.readyState == 4) {
           if (client.status == 201)
           {
@@ -186,14 +176,8 @@ function saveLink(tab_url, document_extracts, options, active_tab_id)
                       active: true
                     }
                   ).then(
-                    function()
-                    {
-                      closeTabs(active_tab_id);
-                    },
-                    function()
-                    {
-                      closeTabs(active_tab_id);
-                    }
+                    () => closeTabs(active_tab_id),
+                    () => closeTabs(active_tab_id)
                   ).finally(window.close);
                 }
                 else
@@ -235,9 +219,7 @@ function saveLink(tab_url, document_extracts, options, active_tab_id)
           resolve(respondError('api_server_status_' + client.status));
         }
       };
-      client.onerror = function() {
-        resolve(respondError('xhr_save_failed'));
-      };
+      client.onerror = () => resolve(respondError('xhr_save_failed'));
       client.open('POST', API_ENDPOINT + 'add');
       client.setRequestHeader('User-Agent', USER_AGENT);
       client.setRequestHeader('Authorization', authorization);
@@ -282,7 +264,7 @@ function PostOffice(request, sender, sendResponse)
         file: '/scripts/inject.js'
       }
     ).then(
-      function (exec_result)
+      exec_result =>
       {
         if (exec_result.length == 1 && exec_result[0].length == 4)
         {
@@ -297,11 +279,7 @@ function PostOffice(request, sender, sendResponse)
         }
         return saveLink(request.url, null, options, request.active_tab_id);
       },
-      function()
-      {
-        return saveLink(request.url, null, options, request.active_tab_id);
-
-      }
+      () => saveLink(request.url, null, options, request.active_tab_id)
     );
   }
   else if (request.type == "open")

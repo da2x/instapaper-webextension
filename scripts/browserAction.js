@@ -9,7 +9,7 @@ function closePopOut()
   // COMPAT: popouts can’t be window.close() on Firefox for Android, Moving focus
   // back to the active tab (the popout is never active) will close the popout.
   browser.runtime.getPlatformInfo().then(
-    function(platformInfo)
+    platformInfo =>
     {
       if (platformInfo.os == 'android')
       {
@@ -42,7 +42,7 @@ function respondToPageChanges()
 {
   var querying = getActiveTab();
   querying.then(
-    function(tabs) {
+    tabs => {
       if (tabs && tabs.length == 1)
       {
         activeTab  = tabs[0];
@@ -52,13 +52,11 @@ function respondToPageChanges()
         errorPage('There are no active tabs.', 'Requires a window with an active tab.');
       }
     },
-    function() {
-      errorPage('Error reading tabs', 'Requires a window with an active tab.');
-    }
+    () => errorPage('Error reading tabs', 'Requires a window with an active tab.')
   );
   // Enable reading buttons only if we have an active and accepable tab 
   querying.finally(
-    function()
+    () =>
     {
       if (activeTab)
       {

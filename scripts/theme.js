@@ -20,9 +20,7 @@ function setThemeStyles(theme) {
   if (theme.colors.popup_border)
   {
     document.getElementsByClassName('has_border').forEach(
-      function(node, index, nodelist) {
-        node.styles.borderColor = theme.colors.popup_border;
-      }
+      (node, index, nodelist) => node.styles.borderColor = theme.colors.popup_border
     );
   }
 

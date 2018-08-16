@@ -9,7 +9,7 @@ var __prefixes = null,
 if (__instapaper_prefixes = document.body.parentElement.attributes['prefix'])
 {
   [/([0-9a-zA-Z]+): ?https?:\/\/ogp.me\/ns\/?#/, /([0-9a-zA-Z]+): ?https?:\/\/purl.org\/dc\/terms\/?#/].forEach(
-    function(__instapaper_pattern)
+    (__instapaper_pattern) =>
     {
       var __instapaper_matches = __instapaper_prefixes.value.match(__instapaper_pattern);
       if (__instapaper_matches && __instapaper_matches.length == 2)

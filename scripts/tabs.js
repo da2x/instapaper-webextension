@@ -75,11 +75,11 @@ function openReadingList(open_in_new_tab, active_tab_id)
   }
 
   return new Promise(
-    function(resolve, reject)
+    (resolve, reject) =>
     {
       var querying = getTabsWithUrl(URL_READING_LIST);
       querying.then(
-        function(tabs) {
+        tabs => {
           if (tabs && tabs.length >= 1)
           {
             resolve(browser.tabs.update(tabs[0].id,
@@ -93,10 +93,7 @@ function openReadingList(open_in_new_tab, active_tab_id)
             resolve(openLink(false, active_tab_id, URL_READING_LIST));
           } 
         },
-        function ()
-        {
-          resolve(openLink(false, active_tab_id, URL_READING_LIST));
-        }
+        () => esolve(openLink(false, active_tab_id, URL_READING_LIST))
       );
     }
   );
