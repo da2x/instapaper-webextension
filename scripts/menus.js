@@ -6,12 +6,12 @@ var this_menu_instance_id = 0,
 browser.menus.create({
   id: 'menu-read-now',
   title: 'Read Now',
-  contexts: ['link', 'page']
+  contexts: ['page']
 });
 browser.menus.create({
   id: 'menu-read-later',
   title: 'Read Later',
-  contexts: ['link', 'page']
+  contexts: ['page']
 });
 browser.menus.create({
   id: 'menu-read-later-close',
@@ -22,9 +22,9 @@ browser.menus.create({
 
 browser.menus.onClicked.addListener((info, tab) =>
   {
-    if (info && (info.linkUrl || info.pageUrl))
+    if (info && info.pageUrl)
     {
-      var linkToRead = info.linkUrl || info.pageUrl,
+      var linkToRead = info.pageUrl,
       read_it_now = info.menuItemId == 'menu-read-now',
       open_in_new_tab = info.modifiers.includes('Shift'),
       open_no_saving =  info.modifiers.includes('Alt'),
