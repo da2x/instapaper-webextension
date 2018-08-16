@@ -1,0 +1,49 @@
+{
+  "manifest_version": 2,
+  "version": "1.0.0",
+  "name": "Read with Instapaper",
+  "description": "Quick-access to read webpages with Instapaper, or move tabs to your Instapaper reading list.",
+  "author": "Daniel Aleksandersen",
+  "permissions": [
+    "https://www.instapaper.com/api/*",
+    "activeTab",
+    "menus",
+    "storage",
+    "tabs",
+    "theme"
+  ],
+  "background": {
+    "scripts": [
+      "scripts/const.js",
+      "scripts/urls.js",
+      "scripts/tabs.js",
+      "scripts/menus.js",
+      "scripts/background.js"
+    ]
+  },
+  "browser_action": {
+    "default_popup": "browserAction.html",
+    "browser_style": true,
+    "default_icon": {
+      "16": "icons/icon.svg",
+      "19": "icons/icon.svg",
+      "24": "icons/icon.svg",
+      "32": "icons/icon.svg",
+      "38": "icons/icon.svg"
+    }
+  },
+  "icons": {
+    "16": "icons/icon.svg",
+    "24": "icons/icon.svg",
+    "32": "icons/icon.svg",
+    "64": "icons/icon.svg",
+    "128": "icons/icon.svg",
+    "256": "icons/icon.svg"
+},
+  "applications": {
+    "gecko": {
+      "id": "{a2bde5ad-a16d-41af-bf11-170b25080a62}",
+      "strict_min_version": "60.0"
+    }
+  }
+}

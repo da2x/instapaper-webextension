@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Read with Instapaper</title>
+    <link href="styles/browserAction.css" rel="stylesheet">
+    <script src="scripts/const.js"></script>
+    <script src="scripts/urls.js"></script>
+    <script src="scripts/tabs.js"></script>
+    <script async src="scripts/browserAction.js"></script>
+    <script async src="scripts/theme.js"></script>
+  </head>
+  <body>
+    <main>
+      <span id="working"></span>
+      <div id="error_ui">
+        <p><small></small></p>
+      </div>
+      <div id="login_ui">
+        <form id="formLogin">
+          <p><strong>Instapaper</strong></p>
+          <p id="login_ui_fb" style="color:red;display:none"></p>
+          <label for="username">
+            <span>Email address:</span>
+            <input name="username" id="inputUserName" type="text">
+          </label>
+          <label for="password">
+            <span>Password (optional):</span>
+            <input name="password" id="inputUserPass" type="password">
+          </label>
+        </form>
+        <div class="has_border">
+          <button id="btnLogin">Login</button>
+        </div>
+      </div>
+      <div id="menu_ui">
+          <div role="group">
+            <button disabled id="btnReadLater">Read Later</button><button class="has_border" disabled id="btnReadNow">Read Now</button>
+          </div>
+          <div class="has_border">
+            <button disabled id="btnReadClose">Read Later and Close Tab</button>
+          </div>
+          <div class="has_border">
+            <button id="btnList">Open Reading List</button>
+          </div>
+        </div>
+    </main>
+  </body>
+</html>

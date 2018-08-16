@@ -1,0 +1,97 @@
+* {
+  font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size: 11pt;
+}
+html, body {
+  background-color: transparent;
+  margin: 0;
+  min-height: 80px;
+  padding: 0;
+  min-width: 180px;
+}
+main {
+  padding: 0;
+  min-width: 180px;
+}
+div {
+  display: block;
+  padding: 4px 0;
+}
+div.has_border {
+  border-top: 1px solid  #d6d6d6;
+}
+div button {
+  background-color: transparent;
+  border: 0;
+  line-height: 2;
+  width: 100%;
+}
+div[role="group"] button {
+  width: 50%;
+}
+div[role="group"] button:last-of-type {
+  border-left: 1px solid #d6d6d6;
+}
+div button[disabled] {
+  color: gray;
+}
+div button:not([disabled]):hover {
+  background-color: #eee;
+}
+span#working {
+  display: block;
+  margin: 50px auto;
+  width: 5px;
+  border-radius: 50%;
+  height: 5px;
+  background-color: #959595;
+  animation-name: waiting;
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes waiting {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(8);
+    }
+}
+#menu_ui,
+#login_ui,
+#error_ui {
+  display: none;
+}
+#login_ui form {
+  padding: 0 8px;
+}
+#login_ui div.has_border {
+  margin-top: 8px;
+}
+#login_ui div.has_border button {
+  text-align: center;
+}
+label {
+  display: block;
+}
+label span,
+label input {
+  display: block;
+  width: 100%;
+}
+#error_ui p {
+  color: red;
+  font-weight: bold;
+  margin-top: 20px;
+  text-align: center;
+}
+#error_ui p small {
+  color: black;
+  display: block;
+  font-weight: normal;
+  margin-bottom: 20px;
+  margin-top: 12px;
+  text-align: center;
+}
