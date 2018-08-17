@@ -154,8 +154,7 @@ function saveLink(tab_url, document_extracts, options, active_tab_id)
       {
         encodedContent = encodeURIComponent(document_extracts.content);
       }
-      
-      
+
 
       let client = new XMLHttpRequest();
       client.onreadystatechange = (ev, sendResponse) =>
