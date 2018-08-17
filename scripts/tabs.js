@@ -1,3 +1,23 @@
+/*
+  Copyright © 2018 Daniel Aleksandersen <https://www.daniel.priv.no/>
+
+  This file is part of Read with Instapaper.
+
+  Read with Instapaper is free software: you can redistribute it and/or
+  modify it under the terms of the GNU General Public License version
+  3 as published by the Free Software Foundation.
+
+  Read with Instapaper is distributed in the hope that it will be
+  useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Read with Instapaper.
+  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+
 // Get the active tab in the active window
 function getActiveTab()
 {
