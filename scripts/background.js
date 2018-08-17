@@ -301,7 +301,7 @@ function PostOffice(request, sender, sendResponse)
       () => saveLink(request.url, null, options, request.active_tab_id)
     );
   }
-  else if (request.type == "open")
+  else if (request.type == 'open')
   {
     if (request.url != undefined)
     {

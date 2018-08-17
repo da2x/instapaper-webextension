@@ -165,7 +165,8 @@ function menuReadNow(ev)
     message = Object.assign(
       {
         type: 'open',
-        url: url
+        url: url,
+        active_tab_id: activeTab.id
       },
       message
     );
@@ -175,7 +176,8 @@ function menuReadNow(ev)
       {
         type: 'save',
         url: activeTabUri,
-        save_and_open: true
+        save_and_open: true,
+        active_tab_id: activeTab.id
       },
       message
     );
