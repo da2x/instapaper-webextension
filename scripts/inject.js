@@ -57,11 +57,11 @@ __instapaper_od_prefix = __instapaper_dc_prefix != null ? __instapaper_dc_prefix
 // Grab titles from Open Graph, Dublin Core, meta title, or fallback to the document title
 if (__instapaper_og_prefix)
 {
-  __instapaper_title = (__instapaper_title = document.querySelector('meta[property~="' + __instapaper_og_prefix + ':title"][content]')) ? __instapaper_title.content : false;
+  __instapaper_title = (__instapaper_title = document.querySelector(`meta[property~="${__instapaper_og_prefix}:title"][content]`)) ? __instapaper_title.content : false;
 }
 if (!__instapaper_title && __instapaper_dc_prefix)
 {
-    __instapaper_title = (__instapaper_title = document.querySelector('meta[property~="' + __instapaper_dc_prefix + ':title"][content], meta[name="DC.title"][content]')) ? __instapaper_title.content : false;
+    __instapaper_title = (__instapaper_title = document.querySelector(`meta[property~="${__instapaper_dc_prefix}:title"][content], meta[name="DC.title"][content]`)) ? __instapaper_title.content : false;
 }
 if (!__instapaper_title)
 {
@@ -72,11 +72,11 @@ if (!__instapaper_title)
 // Grab descriptions from Open Graph, Dublin Core, or meta description
 if (__instapaper_og_prefix)
 {
-  __instapaper_descr = (__instapaper_descr = document.querySelector('meta[property~="' + __instapaper_og_prefix + ':description"][content]')) ? __instapaper_descr.content : false;
+  __instapaper_descr = (__instapaper_descr = document.querySelector(`meta[property~="${__instapaper_og_prefix}:description"][content]`)) ? __instapaper_descr.content : false;
 }
 if (!__instapaper_descr && __instapaper_dc_prefix)
 {
-    __instapaper_descr = (__instapaper_descr = document.querySelector('meta[property~="' + __instapaper_dc_prefix + ':description"][content], meta[name="DC.description"][content]')) ? __instapaper_descr.content : false;
+    __instapaper_descr = (__instapaper_descr = document.querySelector(`meta[property~="${__instapaper_dc_prefix}:description"][content], meta[name="DC.description"][content]`)) ? __instapaper_descr.content : false;
 }
 if (!__instapaper_descr)
 {
@@ -87,11 +87,11 @@ if (!__instapaper_descr)
 // Grab URLs from Open Graph (HTML5 standard link method, then meta), or the canonical link
 if (__instapaper_og_prefix)
 {
-   __instapaper_url = (__instapaper_url = document.querySelector('link[property~="' + __instapaper_og_prefix + ':url"][type="text/html"][href], link[property~="' + __instapaper_og_prefix + ':url"][href]')) ? __instapaper_url.href : false;
+   __instapaper_url = (__instapaper_url = document.querySelector(`link[property~="${__instapaper_og_prefix}:url"][type="text/html"][href], link[property~="${__instapaper_og_prefix}:url"][href]`)) ? __instapaper_url.href : false;
 }
 if (!__instapaper_url && __instapaper_og_prefix)
 {
-    __instapaper_url = (__instapaper_url = document.querySelector('meta[property~="' + __instapaper_og_prefix + ':url"][content]')) ? __instapaper_url.content : false;
+    __instapaper_url = (__instapaper_url = document.querySelector(`meta[property~="${__instapaper_og_prefix}:url"][content]`)) ? __instapaper_url.content : false;
 }
 if (!__instapaper_url)
 {
