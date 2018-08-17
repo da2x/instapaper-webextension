@@ -28,8 +28,13 @@ browser.menus.onClicked.addListener((info, tab) =>
       read_it_now = info.menuItemId == 'menu-read-now',
       open_in_new_tab = info.modifiers.includes('Shift'),
       open_no_saving =  info.modifiers.includes('Alt'),
-      save_and_close = (info.menuItemId == 'menu-read-later-close'),
-      save_for_later = (info.menuItemId == 'menu-read-later' || save_and_close);
+
+      options =
+      {
+        save_and_open: read_it_now,
+        save_and_close: (info.menuItemId == 'menu-read-later-close'),
+        open_in_new_tab: open_no_saving
+      };
 
       if (linkToRead && isFirefoxReaderViewUrl(linkToRead))
       {
@@ -43,7 +48,7 @@ browser.menus.onClicked.addListener((info, tab) =>
         }
         else
         {
-          saveLink(linkToRead, !save_for_later, save_and_close, open_in_new_tab, tab.id);
+          saveLink(linkToRead, null, options, tab.id);
         }
       }
     }
@@ -51,16 +56,32 @@ browser.menus.onClicked.addListener((info, tab) =>
 );
 
 
-browser.menus.onShown.addListener((info, tab) =>
+browser.menus.onShown.addListener(async (info, tab) =>
   {
     var this_menu_instance_id = next_menu_instance_id++;
-    next_menu_instance_id = this_menu_instance_id;
+    next_menu_instance_id = this_menu_instance_id,
+    reading_menus_enabled = false;
 
-    // Disable Read now on private tab
-    browser.menus.update('menu-read-now', {enabled: (!tab.incognito)});
+    if (tab && tab.url)
+    {
+      var url = tab.url;
+      if (isFirefoxReaderViewUrl(url))
+      {
+        url = firefoxReaderViewToUrl(url);
+      }
+      if (url && isWebUrl(url) && !isInstapaperReadingUrl(url))
+      {
+        reading_menus_enabled = true;
+      }
+    }
+
+    await browser.menus.update('menu-read-now', {enabled: (!tab.incognito && reading_menus_enabled)});
+    await browser.menus.update('menu-read-later', {enabled: reading_menus_enabled});
+    await browser.menus.update('menu-read-later-close', {enabled: reading_menus_enabled});
 
     // took too long, another menu is being displayed
-    if (this_menu_instance_id !== next_menu_instance_id) {
+    if (this_menu_instance_id !== next_menu_instance_id)
+    {
       return;
     }
     browser.menus.refresh();
