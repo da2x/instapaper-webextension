@@ -26,3 +26,20 @@ const API_ENDPOINT = URL_INSTAPAPER + 'api/';
 const URL_READ_URL = URL_INSTAPAPER + 'text?u=';
 const URL_READ_BOOKMARK = URL_INSTAPAPER + 'read/';
 const URL_READING_LIST = URL_INSTAPAPER + 'u';
+
+
+var IS_ANDROID = null;
+browser.runtime.getPlatformInfo().then(
+  platformInfo =>
+  {
+    if (platformInfo.os == 'android')
+    {
+      IS_ANDROID = true;
+    }
+    else
+    {
+      IS_ANDROID = false;
+    }
+  },
+  () => IS_ANDROID = false
+);

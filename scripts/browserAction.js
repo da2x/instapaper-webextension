@@ -28,25 +28,18 @@ function closePopOut()
 {
   // COMPAT: popouts can’t be window.close() on Firefox for Android, Moving focus
   // back to the active tab (the popout is never active) will close the popout.
-  browser.runtime.getPlatformInfo().then(
-    platformInfo =>
-    {
-      if (platformInfo.os == 'android')
+  if (IS_ANDROID)
+  {
+    return browser.tabs.update(
       {
-        // Moving docus from active to active dismisses the popout. Makes no sense, but it works.
-        browser.tabs.update(
-          {
-            active: true
-          }
-        ).finally(window.close);
+        active: true
       }
-      else
-      {
-        window.close();
-      }
-    },
-    window.close
-  );
+    ).finally(window.close);
+  }
+  else
+  {
+    window.close();
+  }
 }
 
 
@@ -71,7 +64,9 @@ function respondToPageChanges()
       {
         errorPage('There are no active tabs.', 'Requires a window with an active tab.');
       }
-    },
+    }    
+  );
+  querying.catch(
     () => errorPage('Error reading tabs', 'Requires a window with an active tab.')
   );
   // Enable reading buttons only if we have an active and accepable tab 
@@ -157,6 +152,7 @@ function switchVisibleUi(view)
 function menuReadNow(ev)
 {
   switchVisibleUi('wait');
+  var tab_id = activeTab.id;
   var message = getTabOpeningBehavior(ev);
 
   if (ev && ev.altKey)
@@ -166,7 +162,7 @@ function menuReadNow(ev)
       {
         type: 'open',
         url: url,
-        active_tab_id: activeTab.id
+        active_tab_id: tab_id
       },
       message
     );
@@ -177,14 +173,14 @@ function menuReadNow(ev)
         type: 'save',
         url: activeTabUri,
         save_and_open: true,
-        active_tab_id: activeTab.id
+        active_tab_id: tab_id
       },
       message
     );
   }
   var readNowRequest = browser.runtime.sendMessage(message);
-  readNowRequest.then(handleBackgroundResponses, handleBackgroundResponses)
-  readNowRequest.finally(closePopOut);
+  readNowRequest.then(closePopOut);
+  readNowRequest.catch(handleBackgroundResponse);
 }
 
 
@@ -192,14 +188,15 @@ function menuReadNow(ev)
 function menuReadLater(ev)
 {
   switchVisibleUi('wait');
+  var tab_id = activeTab.id;
   var readLaterRequest = browser.runtime.sendMessage(
     {
       type: 'save',
       url: activeTabUri
     }
   );
-  readLaterRequest.then(handleBackgroundResponses, handleBackgroundResponses)
-  readLaterRequest.finally(closePopOut);
+  readLaterRequest.then(closePopOut);
+  readLaterRequest.catch(handleBackgroundResponse);
 }
 
 
@@ -207,54 +204,77 @@ function menuReadLater(ev)
 function menuReadLaterAndCloseTab(ev)
 {
   switchVisibleUi('wait');
+  var tab_id = activeTab.id;
   var saveRequest = browser.runtime.sendMessage(
     {
       type: 'save',
       url: activeTabUri,
-      save_and_close: true,
-      active_tab_id: activeTab.id
+      active_tab_id: tab_id,
+      save_and_close: true
     }
   );
-  saveRequest.then(handleBackgroundResponses, handleBackgroundResponses)
-  saveRequest.finally(closePopOut);
+  saveRequest.then(
+    () =>
+    {
+      if (IS_ANDROID)
+      {
+        Promise.all(
+          closePopOut(),
+          browser.runtime.sendMessage(
+            {type: 'close_tab',
+            active_tab_id: tab_id}
+          )
+        );
+      }
+      else
+      {
+        closePopOut();
+      }
+    }
+  );
+  saveRequest.catch(handleBackgroundResponse);
 }
 
 
 // Open Reading List
-function menuOpenReadingList(ev) {
+function menuOpenReadingList(ev)
+{
+  switchVisibleUi('wait');
+  var tab_id = activeTab.id;
   var openRequest = browser.runtime.sendMessage(
     Object.assign(
       {
         type: 'open',
         special: 'reading_list',
-        active_tab_id: activeTab.id
+        active_tab_id: tab_id
       },
        getTabOpeningBehavior(ev)
     )
   );
-  openRequest.then(null, handleBackgroundResponses)
-  openRequest.finally(closePopOut);
+  openRequest.then(closePopOut);
+  openRequest.catch(handleBackgroundResponse)
 }
 
 
-function handleLogin(ev) {
+function handleLogin(ev)
+{
   ev.preventDefault();
   switchVisibleUi('wait');
 
   var candidateUserName = document.getElementById('inputUserName').value,
-      candidateUserPass = document.getElementById('inputUserPass').value,
+      candidateUserPass = document.getElementById('inputUserPass').value;
 
-  authRequest = browser.runtime.sendMessage(
+  let authRequest = browser.runtime.sendMessage(
     {
       type: 'auth',
-      validate_credentials: true,
       credentials: {
         userName: candidateUserName,
         userPass: candidateUserPass
       }
     }
   )
-  authRequest.then(handleBackgroundResponses, handleBackgroundResponses)
+  authRequest.then(handleBackgroundResponse);
+  authRequest.catch(handleBackgroundResponse);
 }
 
 
@@ -283,60 +303,61 @@ function setAuthErrorText(msgText)
 
 
 // Handle responses from background process
-function handleBackgroundResponses(message)
+function handleBackgroundResponse(response)
 {
-  // console.debug('Popout message pump: ' + JSON.stringify(message));
-  if (message.type == 'auth')
+  // console.debug('Popout message: ' + JSON.stringify(response));
+  if (response instanceof Error && response.message)
   {
-    switch (message.state)
-    {
-      case 'unauthorized':
-         setAuthErrorText();
-        switchVisibleUi('auth');
-        return;
-      case 'authorized':
-        setAuthErrorText();
-        switchVisibleUi('menu');
-        return;
-    }
-  }
-  else if (message.type == 'save')
-  {
-    return;
-  }
-  else if (message.type == 'error')
-  {
-    switch (message.condition)
+    switch (response.message)
     {
       case 'api_server_save_400':
         errorPage('Server rejected the request.', 'Please try again later.');
-        console.debug(JSON.stringify(message));
-        return;
+        console.debug(JSON.stringify(response.message));
+        return true;
       case 'api_server_unauthorized':
         setAuthErrorText('Your credentials were rejected.')
         switchVisibleUi('auth');
-        return;
+        return true;
       case 'api_server_unavailable':
         errorPage('Service is unavailable.', 'Please try again later.');
-        console.debug(JSON.stringify(message));
-        return;
+        console.debug(JSON.stringify(response.message));
+        return true;
       case 'auth_no_credentials':
         setAuthErrorText('Please enter your email.')
         switchVisibleUi('auth');
-        return;
+        return true;
       case 'xhr_auth_failed':
         setAuthErrorText('Unknown network problem.')
         switchVisibleUi('auth');
-        return;
+        return true;
       case 'xhr_save_failed':
         errorPage('Request failed.', 'Possibly an network related issue.')
-        return;
+        return true;
       default:
-        errorPage('Error!', request.condition);
-        break;
+        errorPage('Error!', response.message);
+        return true;
     }
   }
-  console.debug('Unhandled message: ' + JSON.stringify(message))
+  else if (response.type == 'auth')
+  {
+    switch (response.state)
+    {
+      case 'unauthorized':
+        setAuthErrorText();
+        switchVisibleUi('auth');
+        return true;
+      case 'authorized':
+        setAuthErrorText();
+        switchVisibleUi('menu');
+        return true;
+      case 'failed':
+        setAuthErrorText('Please retry your login.');
+        switchVisibleUi('auth');
+        return true;
+    }
+  }
+  console.debug('Unhandled message: ' + JSON.stringify(response));
+  return false;
 }
 
 // Register events in menu UI (popout)
@@ -356,14 +377,13 @@ browser.tabs.onActivated.addListener(respondToPageChanges);
 browser.tabs.onUpdated.addListener(respondToPageChanges);
 
 
-
 // Initialize
-switchVisibleUi('wait');
 let isAuthed = browser.runtime.sendMessage(
   {
     type: 'auth',
     state: 'request_state'
   }
 );
-isAuthed.then(handleBackgroundResponses, handleBackgroundResponses);
+isAuthed.then(handleBackgroundResponse);
+isAuthed.catch(handleBackgroundResponse);
 respondToPageChanges();

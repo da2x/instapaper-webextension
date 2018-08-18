@@ -50,7 +50,7 @@ function isFirefoxReaderViewTab(tab)
 
 
 // Close a tab
-function closeTabs(ids)
+function closeTab(ids)
 {
   // Return promise of closing a specific tab
   if (ids)
@@ -58,7 +58,7 @@ function closeTabs(ids)
     return browser.tabs.remove(ids);
   }
   // Close active tab
-  browser.tabs.remove();
+  return browser.tabs.remove();
 }
 
 
@@ -82,39 +82,48 @@ function openLink(open_in_new_tab, tab_id, url)
       }
     );
   }
-  return false;
 }
 
 
 // Open new or activate reading list
 function openReadingList(open_in_new_tab, active_tab_id)
 {
-  if (open_in_new_tab)
-  {
-    return openLink(open_in_new_tab, null, URL_READING_LIST);
-  }
-
   return new Promise(
     (resolve, reject) =>
     {
-      var querying = getTabsWithUrl(URL_READING_LIST);
-      querying.then(
-        tabs => {
-          if (tabs && tabs.length >= 1)
-          {
-            resolve(browser.tabs.update(tabs[0].id,
-              {
-                active: true
-              }
-            ));
+      if (open_in_new_tab)
+      {
+        openLink(open_in_new_tab, null, URL_READING_LIST).finally(resolve);
+      }
+      else
+      {
+        return getTabsWithUrl(URL_READING_LIST)
+        .then(
+          tabs => {
+            if (tabs && tabs.length >= 1)
+            {
+              // not waiting for page reload
+              browser.tabs.reload(
+                tabs[0].id
+              );
+              // reactivating existing tab
+              return browser.tabs.update(
+                tabs[0].id,
+                {
+                  active: true
+                }
+              ).finally(resolve);
+            }
+            else
+            {
+              return openLink(false, active_tab_id, URL_READING_LIST).finally(resolve);
+            } 
           }
-          else
-          {
-            resolve(openLink(false, active_tab_id, URL_READING_LIST));
-          } 
-        },
-        () => esolve(openLink(false, active_tab_id, URL_READING_LIST))
-      );
+        )
+        .catch(
+          () => openLink(false, active_tab_id, URL_READING_LIST).finally(resolve)
+        );
+      }
     }
   );
 }

@@ -19,16 +19,7 @@
 
 
 // Global states
-var authorization = null,
-    isAndroid = null;
-
-
-// Prepare and log error condition responses
-function respondError(condition)
-{
-  console.error('Error condition: ' + condition);
-  return {type: 'error', condition: condition};
-}
+var authorization = null;
 
 
 // Delete and unset authroization state
@@ -61,7 +52,9 @@ function getAuthorization()
             return;
           }
           resolve({type: 'auth', state: 'unauthorized'});
-        },
+        }
+      );
+      authorize.catch(
         () => resolve({type: 'auth', state: 'failed'})
       );
     }
@@ -77,172 +70,145 @@ function setAuthorization(new_auth)
 }
 
 
-// Determine if environment is Android
-function setIsAndroid()
-{
-  browser.runtime.getPlatformInfo().then(
-    platformInfo =>
-    {
-      if (platformInfo.os == 'android')
-      {
-        isAndroid = true;
-      }
-      else isAndroid = false;
-    }
-  );
-}
-
-
 // Validate user credentials
 function validateAuth(candidateUserName, candidateUserPass)
 {
-  return new Promise(
-    (resolve, reject) =>
-    {
-      if (!candidateUserName)
-      {
-        resolve(respondError('auth_no_credentials'));
-      }
-      // Instapaper accounts don’t require passwords (!!!) – set to "none" if no password is provided.
-      if (!candidateUserPass)
-      {
-        candidateUserPass = "none";
-      }
-      var candidateAuthorization = 'Basic ' + btoa(candidateUserName + ':' + candidateUserPass);
+  if (!candidateUserName)
+  {
+    throw new Error('auth_no_credentials');
+  }
+  // Instapaper accounts don’t require passwords (!!!) – set to "none" if no password is provided.
+  if (!candidateUserPass)
+  {
+    candidateUserPass = "none";
+  }
 
-      let client = new XMLHttpRequest();
-      client.onreadystatechange = (ev) =>
-      {
-        if (client.readyState == 4)
-        {
-          if (client.status == 200)
-          {
-            return setAuthorization(candidateAuthorization).then(
-              () => resolve({type: 'auth', state: 'authorized'}),
-              () => resolve({type: 'auth', state: 'failed'})
-            );
-          }
-          else if (client.status == 403)
-          {
-            clearAuthorization();
-            resolve(respondError('api_server_unauthorized'));
-            return;
-          }
-          else if (client.status == 500)
-          {
-            resolve(respondError('api_server_unavailable'));
-            return;
-          }
-          resolve(respondError('api_server_status_' + client.status));
-        }
-      };
-      client.onerror = () => resolve(respondError('xhr_auth_failed'));
-      client.open('POST', API_ENDPOINT + 'authenticate');
-      client.setRequestHeader('User-Agent', USER_AGENT);
-      client.setRequestHeader('Authorization', candidateAuthorization);
-      client.send();
+  var candidateAuthorization = 'Basic ' + btoa(candidateUserName + ':' + candidateUserPass);
+
+  return fetch(
+    API_ENDPOINT + 'authenticate',
+    {
+      method: 'POST',
+      headers: {
+        'User-Agent': USER_AGENT,
+        'Authorization': candidateAuthorization,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      redirect: 'error'
     }
-  );
+  )
+  .then(
+    response =>
+    {
+      if (response.status == 200)
+      {
+        setAuthorization(candidateAuthorization);
+        return {type: 'auth', state: 'authorized'};
+      }
+      else if (response.status == 403)
+      {
+        clearAuthorization();
+        throw new Error('api_server_unauthorized');
+      }
+      else if (response.status == 500)
+      {
+        throw new Error('api_server_unavailable');
+      }
+      else {
+        throw new Error('api_server_status_' + client.status);
+      }
+    }
+  )
 }
 
 
 function saveLink(tab_url, document_extracts, options, active_tab_id)
 {
-  return new Promise(
-    (resolve, reject) =>
+  var resolveFinalUrl = 1;
+  var encodedUrl = encodeURIComponent(tab_url);
+  var encodedTitle = '';
+  var encodedDescription = '';
+  var encodedContent = '';
+
+  if (document_extracts && document_extracts.url != null)
+  {
+    encodedUrl = encodeURIComponent(document_extracts.url);
+    resolveFinalUrl = 0;
+  }
+  if (document_extracts && document_extracts.title != null)
+  {
+    encodedTitle = encodeURIComponent(document_extracts.title);
+  }
+  if (document_extracts && document_extracts.description != null)
+  {
+    encodedDescription = encodeURIComponent(document_extracts.description);
+  }
+  if (document_extracts && document_extracts.content != null)
+  {
+    encodedContent = encodeURIComponent(document_extracts.content);
+  }
+
+  let postData = 'url=' + encodedUrl + '&resolve_final_url=' + resolveFinalUrl + '&title=' + encodedTitle + '&description=' +encodedDescription + '&content=' + encodedContent;
+
+  return fetch(
+    API_ENDPOINT + 'add',
     {
-      var resolveFinalUrl = 1;
-      var encodedUrl = encodeURIComponent(tab_url);
-      var encodedTitle = '';
-      var encodedDescription = '';
-      var encodedContent = '';
-
-      if (document_extracts && document_extracts.url != null)
+      method: 'POST',
+      headers: {
+        'User-Agent': USER_AGENT,
+        'Authorization': authorization,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      redirect: 'error',
+      body: postData
+    }
+  )
+  .then(
+    response =>
+    {
+      if (response.status == 201)
       {
-        encodedUrl = encodeURIComponent(document_extracts.url);
-        resolveFinalUrl = 0;
+        return response.json();
       }
-      if (document_extracts && document_extracts.title != null)
+      else if (response.status === 400)
       {
-        encodedTitle = encodeURIComponent(document_extracts.title);
+        throw new Error('api_server_save_400');
       }
-      if (document_extracts && document_extracts.description != null)
+      else if (response.status === 403)
       {
-        encodedDescription = encodeURIComponent(document_extracts.description);
+        clearAuthorization();
+        throw new Error('api_server_unauthorized');
       }
-      if (document_extracts && document_extracts.content != null)
+      else if (response.status === 500)
       {
-        encodedContent = encodeURIComponent(document_extracts.content);
+        throw new Error('api_server_unavailable');
       }
-
-
-      let client = new XMLHttpRequest();
-      client.onreadystatechange = (ev, sendResponse) =>
+      else
       {
-        if (client.readyState == 4) {
-          if (client.status == 201)
-          {
-            var json = JSON.parse(client.responseText);
-            if (json && json.bookmark_id)
-            {
-              if (options.save_and_close)
-              {
-                if (isAndroid)
-                {
-                  // See closePopOut() in browserActions.js
-                  browser.tabs.update(
-                    {
-                      active: true
-                    }
-                  ).then(
-                    () => closeTabs(active_tab_id),
-                    () => closeTabs(active_tab_id)
-                  ).finally(window.close);
-                }
-                else
-                {
-                  closeTabs(active_tab_id);
-                }
-              }
-              if (options.save_and_open)
-              {
-                var open_url = URL_READ_BOOKMARK + json.bookmark_id;
-                openLink(options.open_in_new_tab, active_tab_id, open_url);
-              }
-              resolve({type: 'save', state: 'saved', bookmark_id: json.bookmark_id});
-              return;
-            }
-            else if (options.save_and_open)
-            {
-              var open_url = URL_READ_URL + encodeURIComponent(tab_url);
-              return openLink(options.open_in_new_tab, active_tab_id, open_url);
-            }
-            return;
-          }
-          else if (client.status === 400)
-          {
-            resolve(respondError('api_server_save_400'));
-            return;
-          }
-          else if (client.status === 403)
-          {
-            clearAuthorization();
-            resolve(respondError('api_server_unauthorized'));
-            return;
-          }
-          else if (client.status === 500)
-          {
-            resolve(respondError('api_server_unavailable'));
-            return;
-          }
-          resolve(respondError('api_server_status_' + client.status));
+        throw new Error('api_server_status_' + response.status);
+      }
+    }
+  )
+  .then(
+    (json_response) =>
+    {
+      if (json_response.bookmark_id)
+      {
+        if (options.save_and_open)
+        {
+          let open_url = URL_READ_BOOKMARK + json_response.bookmark_id;
+          return openLink(options.open_in_new_tab, active_tab_id, open_url);
         }
-      };
-      client.onerror = () => resolve(respondError('xhr_save_failed'));
-      client.open('POST', API_ENDPOINT + 'add');
-      client.setRequestHeader('User-Agent', USER_AGENT);
-      client.setRequestHeader('Authorization', authorization);
-      client.send('url=' + encodedUrl + '&resolve_final_url=' + resolveFinalUrl + '&title=' + encodedTitle + '&description=' +encodedDescription + '&content=' + encodedContent);
+        else if (options.save_and_close)
+        {
+          // COMPAT: Android needs to close the tab from popover-tab to be able to close itself
+          if (IS_ANDROID)
+          {
+            return true;
+          }
+          return closeTab(active_tab_id);
+        }
+      }
     }
   );
 }
@@ -254,18 +220,13 @@ function PostOffice(request, sender, sendResponse)
   // console.debug('Background PostOffice request received: ' + JSON.stringify(request));
   if (request.type == 'auth')
   {
-    if (request.type == 'auth' && request.state == 'request_state')
+    if (request.state == 'request_state')
     {
       return getAuthorization();
     }
-    else if (request.validate_credentials)
-    { 
-      if (request.credentials && request.credentials.userName != undefined)
-      {
-        return validateAuth(request.credentials.userName, request.credentials.userPass);
-      }
-      sendResponse(respondError('auth_no_credentials'));
-      return;
+    else if (request.credentials)
+    {
+      return validateAuth(request.credentials.userName, request.credentials.userPass);
     }
   }
   else if (request.type == 'save')
@@ -282,7 +243,8 @@ function PostOffice(request, sender, sendResponse)
         allFrames: false,
         file: '/scripts/inject.js'
       }
-    ).then(
+    )
+    .then(
       exec_result =>
       {
         if (exec_result.length == 1 && exec_result[0].length == 4)
@@ -296,22 +258,37 @@ function PostOffice(request, sender, sendResponse)
           };
           return saveLink(request.url, document_extracts, options, request.active_tab_id);
         }
+        else
+        {
+          return saveLink(request.url, null, options, request.active_tab_id);
+        }
+      }
+    )
+    .catch(
+      () =>
+      {
         return saveLink(request.url, null, options, request.active_tab_id);
-      },
-      () => saveLink(request.url, null, options, request.active_tab_id)
+      }
     );
   }
   else if (request.type == 'open')
   {
     if (request.url != undefined)
     {
-      return openLink(request.open_in_new_tab, request.active_tab_id, request.url);
+      return openLink(request.open_in_new_tab, request.active_tab_id, request.url);;
     }
     else if (request.special != undefined)
     {
       return openReadingList(request.open_in_new_tab, request.active_tab_id);
     }
   }
+  else if (request.type == 'close_tab' && request.active_tab_id)
+  {
+    return closeTab(request.active_tab_id);
+  }
+
+  return new Promise((resolve, reject) => reject(new Error('unhandled_other_message')));
+
 }
 browser.runtime.onMessage.addListener(PostOffice);
 
