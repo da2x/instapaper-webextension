@@ -18,7 +18,9 @@
 */
 
 
-const USER_AGENT = navigator.userAgent + ' ReadWithInstapaper/' + browser.runtime.getManifest().version 
+const EXTENSION_NAME = browser.runtime.getManifest().name;
+const EXTENSION_VERSION = browser.runtime.getManifest().version;
+const USER_AGENT = `${navigator.userAgent} ${EXTENSION_NAME.replace(/ /g, '-')}/${EXTENSION_VERSION}`
 const URL_INSTAPAPER = 'https://www.instapaper.com/';
 const API_ENDPOINT = URL_INSTAPAPER + 'api/';
 const URL_READ_URL = URL_INSTAPAPER + 'text?u=';
