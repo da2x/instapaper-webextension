@@ -218,19 +218,17 @@ function menuReadLaterAndCloseTab(ev)
     {
       if (IS_ANDROID)
       {
-        Promise.all(
-          closePopOut(),
-          browser.runtime.sendMessage(
-            {type: 'close_tab',
-            active_tab_id: tab_id}
-          )
+        return browser.runtime.sendMessage(
+          {
+            type: 'close_tab',
+            active_tab_id: tab_id
+          }
         );
       }
-      else
-      {
-        closePopOut();
-      }
     }
+  );
+  saveRequest.then(
+    () => closePopOut()
   );
   saveRequest.catch(handleBackgroundResponse);
 }
