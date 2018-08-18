@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "name": "Read with Instapaper",
   "description": "Quick-access to read webpages with Instapaper, or move tabs to your Instapaper reading list.",
   "author": "Daniel Aleksandersen",
