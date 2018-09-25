@@ -4,6 +4,7 @@
   "name": "Read with Instapaper",
   "description": "Quick-access to read webpages with Instapaper, or move tabs to your Instapaper reading list.",
   "author": "Daniel Aleksandersen",
+  "homepage_url": "https://www.daniel.priv.no/web-extensions/instapaper",
   "permissions": [
     "https://www.instapaper.com/api/*",
     "activeTab",
