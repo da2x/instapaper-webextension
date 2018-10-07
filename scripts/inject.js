@@ -104,21 +104,32 @@ __instapaper_dc_prefix = null;
 
 
 // Reroute Inter-Planetary File System resources through a public HTTP gateway
-if (window.ipfs && (__instapaper_url == null ||
-    (__instapaper_url.startsWith('/ipfs/')   ||
-     __instapaper_url.startsWith('/ipns/'))))
+if (RegExp('^ip[fn]s\:\/\/|^dweb\:\/ip[fn]s\/').test(__instapaper_url || document.location) ||
+    (window.ipfs && RegExp('^https?\:\/\/[^\/]*\/ip[fn]s\/').test(__instapaper_url || document.location)))
 {
   let nurl = new URL(__instapaper_url || document.location);
-  if (nurl.pathname.startsWith('/ipfs/') || 
-      nurl.pathname.startsWith('/ipns/'))
+  let gateways = ['gateway.ipfs.io', 'www.cloudflare-ipfs.com'];
+  let gateway = gateways[Math.floor(Math.random() * gateways.length)];
+  if (nurl.protocol == 'dweb:')
+    var pathname = nurl.pathname;
+  if (nurl.protocol == 'ipfs:')
   {
-    let gateways = ['gateway.ipfs.io', 'www.cloudflare-ipfs.com'];
-    let gateway = gateways[Math.floor(Math.random() * gateways.length)];
-    nurl.port = '';
-    nurl.protocol = 'https:';
-    nurl.host = gateway;
-    __instapaper_url = nurl.toString();
-} }
+    nurl.pathname = '/ipfs' + nurl.pathname.substr(1);
+  }
+  else if (nurl.protocol == 'ipns:')
+  {
+    nurl.pathname = '/ipns' + nurl.pathname.substr(1);
+  }
+  nurl.protocol = 'https:';
+  nurl.port = '';
+  nurl.host = gateway;
+  if (pathname)
+  {
+    nurl.pathname = pathname;
+  }
+  __instapaper_url = nurl.toString();
+}
+
 
 
 [__instapaper_url, __instapaper_title,__instapaper_descr, document.body.parentElement.outerHTML];
