@@ -22,7 +22,9 @@
       "scripts/background.js"
     ]
   },
-  "browser_action": {
+  "page_action": {
+    "show_matches": ["*://*/*"],
+    "hide_matches": ["*://www.instapaper.com/*"],
     "default_popup": "browserAction.html",
     "browser_style": true,
     "default_icon": {
@@ -30,7 +32,7 @@
       "19": "icons/icon.svg",
       "24": "icons/icon.svg",
       "32": "icons/icon.svg",
-      "38": "icons/icon.svg"
+      "64": "icons/icon.svg"
     }
   },
   "icons": {
