@@ -292,6 +292,13 @@ function PostOffice(request, sender, sendResponse)
 }
 browser.runtime.onMessage.addListener(PostOffice);
 
+browser.tabs.onUpdated.addListener((id, changeInfo, tab) => {
+    if(isInstapaperReadingUrl(tab.url)) {
+      browser.pageAction.hide(id)
+    } else {
+      browser.pageAction.show(id)
+    }
+});
 
 // Initialize
 getAuthorization();
