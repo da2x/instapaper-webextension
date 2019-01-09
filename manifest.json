@@ -24,8 +24,14 @@
   },
   "page_action": {
     "show_matches": ["*://*/*"],
-    "hide_matches": ["*://www.instapaper.com/*"],
+    "hide_matches": [
+      "*://www.instapaper.com/u*",
+      "*://www.instapaper.com/read/*",
+      "*://www.instapaper.com/api/*",
+      "*://www.instapaper.com/text?u=*"
+    ],
     "default_popup": "browserAction.html",
+    "default_title": "Read with Instapaper",
     "browser_style": true,
     "default_icon": {
       "16": "icons/icon.svg",
