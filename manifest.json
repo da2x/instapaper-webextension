@@ -34,11 +34,11 @@
     "default_title": "Read with Instapaper",
     "browser_style": true,
     "default_icon": {
-      "16": "icons/icon.svg",
-      "19": "icons/icon.svg",
-      "24": "icons/icon.svg",
-      "32": "icons/icon.svg",
-      "38": "icons/icon.svg"
+      "16": "icons/pageAction.svg",
+      "19": "icons/pageAction.svg",
+      "24": "icons/pageAction.svg",
+      "32": "icons/pageAction.svg",
+      "38": "icons/pageAction.svg"
     }
   },
   "icons": {
