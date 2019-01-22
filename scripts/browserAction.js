@@ -22,7 +22,6 @@
 var activeTab = null,
     activeTabUri = null;
 
-    
 // Dismiss the browserAction pop-out
 function closePopOut()
 {
@@ -60,16 +59,16 @@ function respondToPageChanges()
       {
         activeTab  = tabs[0];
       }
-      else 
+      else
       {
         errorPage('There are no active tabs.', 'Requires a window with an active tab.');
       }
-    }    
+    }
   );
   querying.catch(
     () => errorPage('Error reading tabs', 'Requires a window with an active tab.')
   );
-  // Enable reading buttons only if we have an active and accepable tab 
+  // Enable reading buttons only if we have an active and accepable tab
   querying.finally(
     () =>
     {
