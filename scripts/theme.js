@@ -28,12 +28,12 @@ function setThemeStyles(theme) {
 
   if (theme.colors.popout || theme.colors.frame)
   {
-    document.body.styles.backgroundColor = theme.colors.popout || theme.colors.frame;
+    document.body.style.backgroundColor = theme.colors.popout || theme.colors.frame;
   }
 
   if (theme.colors.popout_text || theme.colors.textcolor)
   {
-    document.body.styles.backgroundColor = theme.colors.popout_text || theme.colors.textcolor;
+    document.body.style.backgroundColor = theme.colors.popout_text || theme.colors.textcolor;
   }
 
   if (theme.colors.popup_border)
