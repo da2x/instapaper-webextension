@@ -3,7 +3,7 @@ MAKEFLAGS += -j --output-sync
 SOURCES  = manifest.json browserAction.html
 SOURCES += $(shell find icons   -name '*.svg')
 SOURCES += $(shell find scripts -name '*.js')
-SOURCES += $(shell find styles  -name '*.cs')
+SOURCES += $(shell find styles  -name '*.css')
 SOURCES += COPYING
 
 all: build
