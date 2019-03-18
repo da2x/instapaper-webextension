@@ -10,7 +10,8 @@ all: build
 
 build: webextension.zip
 
-webextension.zip: clean $(SOURCES)
+webextension.zip: $(SOURCES)
+	@rm -f $@
 	zip -9 $@ $(SOURCES)
 
 clean:
