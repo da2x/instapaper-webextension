@@ -4,6 +4,7 @@ SOURCES  = manifest.json browserAction.html
 SOURCES += $(shell find icons   -name '*.svg')
 SOURCES += $(shell find scripts -name '*.js')
 SOURCES += $(shell find styles  -name '*.cs')
+SOURCES += COPYING
 
 all: build
 
