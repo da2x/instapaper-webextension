@@ -26,14 +26,14 @@ function setThemeStyles(theme) {
     return false;
   }
 
-  if (theme.colors.popout || theme.colors.frame)
+  if (theme.colors.popup || theme.colors.frame)
   {
-    document.body.style.backgroundColor = theme.colors.popout || theme.colors.frame;
+    document.body.style.backgroundColor = theme.colors.popup || theme.colors.frame;
   }
 
-  if (theme.colors.popout_text || theme.colors.textcolor)
+  if (theme.colors.popup_text || theme.colors.textcolor)
   {
-    document.body.style.backgroundColor = theme.colors.popout_text || theme.colors.textcolor;
+    document.body.style.color = theme.colors.popup_text || theme.colors.textcolor;
   }
 
   if (theme.colors.popup_border)
