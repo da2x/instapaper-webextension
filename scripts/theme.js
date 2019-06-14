@@ -17,8 +17,6 @@
   If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Apply browser chrome themeing. This doesn’t work properly as of 2018-08.
-// Depends on: https://bugzilla.mozilla.org/show_bug.cgi?id=1435216
 function setThemeStyles(theme) {
   // console.debug(theme);
   if (!theme || !theme.colors)
@@ -34,19 +32,27 @@ function setThemeStyles(theme) {
   if (theme.colors.popup_text || theme.colors.textcolor)
   {
     document.body.style.color = theme.colors.popup_text || theme.colors.textcolor;
+    document.body.style.color = theme.colors.popup_text || theme.colors.textcolor;
+    [].forEach.call(document.getElementsByClassName('menu_item'), (node, index) =>
+      {
+        node.style.color = theme.colors.popup_text || theme.colors.textcolor
+      }
+    );
   }
 
   if (theme.colors.popup_border)
   {
-    document.getElementsByClassName('has_border').forEach(
-      (node, index, nodelist) => node.styles.borderColor = theme.colors.popup_border
+    [].forEach.call(document.getElementsByClassName('has_border'), (node, index) =>
+      {
+        node.style.borderColor = theme.colors.popup_border
+      }
     );
   }
 
   if (theme.colors.popup_highlight && theme.colors.popup_highlight_text)
   {
-    let cssdec = 'div button:hover{background-color:' + theme.colors.popup_highlight + ';color:' + popup_highlight_text + '}';
-    let styles = document.createElement('style');
+    var cssdec = 'div button:hover{background-color:' + theme.colors.popup_highlight + ';color:' + theme.colors.popup_highlight_text + '}';
+    var styles = document.createElement('style');
     element.appendChild(document.createTextNode(cssdec));
     document.head.appendChild(styles);
   }

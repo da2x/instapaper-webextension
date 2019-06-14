@@ -26,8 +26,8 @@ html, body {
   background-color: transparent;
   margin: 0;
   min-height: 80px;
-  padding: 0;
   min-width: 180px;
+  padding: 0;
 }
 main {
   padding: 0;
@@ -53,10 +53,10 @@ div[role="group"] button:last-of-type {
   border-left: 1px solid #d6d6d6;
 }
 div button[disabled] {
-  color: gray;
+  opacity: 0.6;
 }
 div button:not([disabled]):hover {
-  background-color: #eee;
+  background-color: #eeeeeead;
 }
 span#working {
   display: block;
@@ -108,7 +108,7 @@ label input {
   text-align: center;
 }
 #error_ui p small {
-  color: black;
+  color: inherit;
   display: block;
   font-weight: normal;
   margin-bottom: 20px;
